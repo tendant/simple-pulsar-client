@@ -59,12 +59,13 @@
   ([producer value]
    (send-message producer value nil nil)))
 
-(defn consumer-opts [consumer opts]
+(defn- consumer-opts [consumer opts]
   (cond-> consumer
     (:ack-timeout opts) (.ackTimeout (:ack-timeout opts) (or (:time-unit opts) TimeUnit/SECONDS))))
 
 (defn make-consumer
   ([client topics subscription-name opts]
+   (println "make-consumer: with opts:" opts)
    (let [topics (into-array topics)
          consumer (cond-> (.newConsumer client)
                     topics (.topic topics)
@@ -72,12 +73,12 @@
                     opts (consumer-opts opts))]
      (.subscribe consumer)))
   ([client topics subscription-name]
-   (make-consumer topics subscription-name nil)))
+   (make-consumer client topics subscription-name nil)))
 
 (defn start-job
   [service-url subscription-name topics process-fn ex-fn opts]
   (with-open [client (make-client service-url)
-              consumer (make-consumer client topics subscription-name)]
+              consumer (make-consumer client topics subscription-name opts)]
     (printf "start-job subscription: %s, topics: %s.%n" subscription-name topics)
     (try
       (while true
