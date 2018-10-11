@@ -1,7 +1,8 @@
 (ns simple-pulsar.client
   (:require [cheshire.core :as json])
   (:import [org.apache.pulsar.client.api PulsarClient]
-           [org.apache.pulsar.client.api Schema]))
+           [org.apache.pulsar.client.api Schema]
+           [java.util.concurrent TimeUnit]))
 
 (def service-url "pulsar://localhost:6650")
 
@@ -58,13 +59,20 @@
   ([producer value]
    (send-message producer value nil nil)))
 
+(defn consumer-opts [consumer opts]
+  (cond-> consumer
+    (:ack-timeout opts) (.ackTimeout (:ack-timeout opts) (or (:time-unit opts) TimeUnit/SECONDS))))
+
 (defn make-consumer
-  [client topics subscription-name]
-  (let [topics (into-array topics)]
-    (-> (.newConsumer client)
-        (.topic topics)
-        (.subscriptionName subscription-name)
-        (.subscribe))))
+  ([client topics subscription-name opts]
+   (let [topics (into-array topics)
+         consumer (cond-> (.newConsumer client)
+                    topics (.topic topics)
+                    subscription-name (.subscriptionName subscription-name)
+                    opts (consumer-opts opts))]
+     (.subscribe consumer)))
+  ([client topics subscription-name]
+   (make-consumer topics subscription-name nil)))
 
 (defn start-job
   [service-url subscription-name topics process-fn ex-fn opts]
