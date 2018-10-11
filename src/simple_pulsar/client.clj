@@ -69,7 +69,7 @@
 (defn start-job
   [service-url subscription-name topics process-fn ex-fn opts]
   (with-open [client (make-client service-url)
-        consumer (make-consumer client topics subscription-name)]
+              consumer (make-consumer client topics subscription-name)]
     (printf "start-job subscription: %s, topics: %s.%n" subscription-name topics)
     (try
       (while true
