@@ -60,6 +60,8 @@
    (send-message producer value nil nil)))
 
 (defn- consumer-opts [consumer opts]
+  (println "ack-timeout:" (:ack-timeout opts))
+  (println "time-unit:" (or (:time-unit opts) TimeUnit/SECONDS))
   (cond-> consumer
     (:ack-timeout opts) (.ackTimeout (:ack-timeout opts) (or (:time-unit opts) TimeUnit/SECONDS))))
 

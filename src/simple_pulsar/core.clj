@@ -11,7 +11,7 @@
   [message]
   (println "processing message:" (String. (.getData message)))
   (println "sleep 20 seconds")
-  (Thread/sleep 20000)
+  (Thread/sleep 30000)
   (println "Done sleep"))
 
 (defn- ex-fn
@@ -20,4 +20,4 @@
 
 (defn -main
   [subscription-name topic]
-  (pulsar/start-job "pulsar://localhost:6650" subscription-name [topic] process-fn ex-fn {:ack-timeout 12}))
+  (pulsar/start-job "pulsar://localhost:6650" subscription-name [topic] process-fn-with-delay ex-fn {:ack-timeout 12}))
