@@ -67,12 +67,13 @@
 
 (defn make-consumer
   ([client topics subscription-name opts]
-   (println "make-consumer: with opts:" opts)
-   (let [topics (into-array String topics)
+   (println "make-consumer: with opts:" opts " for topics:" topics)
+   (let [topic-array (java.util.ArrayList. topics)
          consumer (cond-> (.newConsumer client)
-                    topics (.topics topics)
+                    topic-array (.topics topic-array)
                     subscription-name (.subscriptionName subscription-name)
                     opts (consumer-opts opts))]
+     (println "consumer to subscribe", consumer)
      (.subscribe consumer)))
   ([client topics subscription-name]
    (make-consumer client topics subscription-name nil)))
